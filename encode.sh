@@ -50,10 +50,11 @@ subtitle_tracks() {
 }
 
 extract() {
-    mkv=${1}
-    out=${2}
-    video_track_id=$(video_track_id $mkv)
-    track_opts="$video_track_id:$out/$video_track_id.video"
+    local mkv=${1}
+    local out=${2}
+    local video_track_id=$(video_track_id $mkv)
+    local aspect=16_9
+    local track_opts="$video_track_id:$out/$video_track_id.$aspect.video"
 
     for track in $(audio_tracks $mkv); do
 	local id=$(echo "$track" | cut -d ',' -f1)
