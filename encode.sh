@@ -78,7 +78,10 @@ extract() {
     mkvextract $mkv tracks $track_opts
 }
 
-
+aspect() {
+    local src=${1}
+    basename $src | cut -d '.' -f 2 | tr '_' '/'
+}
 
 encode_video() {
     local src=${1}
@@ -86,6 +89,7 @@ encode_video() {
     local dst_file=$out/$(basename -s video $src)x264
     local bitrate=1000
     local filter_crop="crop=${2}"
+    local aspect=$(aspect $src)
     # low
     # local quality="subq=5:partitions=all:8x8dct:me=umh:frameref=3:bframes=4:b_pyramid=normal:weight_b:bitrate=$bitrate"
     # local passes=1
@@ -94,7 +98,7 @@ encode_video() {
     
     for pass in $passes; do
 	quality="subq=7:partitions=all:8x8dct:me=umh:frameref=12:bframes=4:b_pyramid=normal:weight_b:pass=$pass:bitrate=$bitrate"
-	mencoder $src -aspect 16/9 -vf $filter_crop -mc 0 \
+	mencoder $src -aspect $aspect -vf $filter_crop -mc 0 \
 		      -ovc x264 -x264encopts \
 		      $quality \
 		      -oac copy -of rawvideo -o $dst_file \
@@ -123,7 +127,7 @@ make_mkv() {
 
     local mkv=$(dirname $wdir)/$(basename $wdir).mkv
     test -f $mkv && rm $mkv
-    mkvmerge -o $mkv $wdir/0.x264 $track_opts
+    mkvmerge -o $mkv $(find $wdir -name '0.*.x264') $track_opts
 }
 
 
